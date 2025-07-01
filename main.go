@@ -55,3 +55,11 @@ func (pl *ParkingLot) UnparkCar(carNumber string) (int, error) {
 	}
 	return -1, fmt.Errorf("car not found")
 }
+func (pl *ParkingLot) IsFull() bool {
+	for _, slot := range pl.Slots {
+		if slot.IsEmpty {
+			return false
+		}
+	}
+	return true
+}

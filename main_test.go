@@ -52,3 +52,12 @@ func TestUnparkCar_NotFound(t *testing.T) {
 		t.Error("expected error for car not found, got nil")
 	}
 }
+func TestIsFull(t *testing.T) {
+	lot := NewParkingLot("Lot A", 1)
+	car := &Car{Number: "KA01F1111"}
+	_, _ = lot.ParkCar(car)
+
+	if !lot.IsFull() {
+		t.Errorf("expected lot to be full")
+	}
+}
