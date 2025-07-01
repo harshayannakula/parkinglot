@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+type Observer func(msg string)
+
 type Car struct {
 	Number     string
 	Color      string
@@ -22,8 +24,9 @@ type Slot struct {
 }
 
 type ParkingLot struct {
-	Name  string
-	Slots []Slot
+	Name      string
+	Slots     []Slot
+	Observers []Observer
 }
 
 func NewParkingLot(name string, capacity int) *ParkingLot {
@@ -62,4 +65,18 @@ func (pl *ParkingLot) IsFull() bool {
 		}
 	}
 	return true
+}
+
+func (pl *ParkingLot) NotifyObservers(message string) {
+	for _, observer := range pl.Observers {
+		observer(message)
+	}
+}
+
+func (pl *ParkingLot) ParkCarWithNotification(car *Car) (int, error) {
+	slot, err := pl.ParkCar(car)
+	if err != nil {
+		pl.NotifyObservers("FULL")
+	}
+	return slot, err
 }

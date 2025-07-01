@@ -61,3 +61,23 @@ func TestIsFull(t *testing.T) {
 		t.Errorf("expected lot to be full")
 	}
 }
+func TestNotifyObserversOnFull(t *testing.T) {
+	called := false
+	observer := func(msg string) {
+		if msg == "FULL" {
+			called = true
+		}
+	}
+
+	lot := NewParkingLot("Lot A", 1)
+	lot.Observers = []Observer{observer}
+
+	car1 := &Car{Number: "A"}
+	car2 := &Car{Number: "B"}
+	_, _ = lot.ParkCarWithNotification(car1)
+	_, _ = lot.ParkCarWithNotification(car2)
+
+	if !called {
+		t.Error("expected observer to be called on full lot")
+	}
+}
