@@ -116,3 +116,24 @@ func TestAttendantParksCar(t *testing.T) {
 		t.Errorf("expected slot 1, got %d", slot)
 	}
 }
+func TestFindCar_Success(t *testing.T) {
+	lot := NewParkingLot("Lot A", 2)
+	car := &Car{Number: "KA01MM2323"}
+	_, _ = lot.ParkCar(car)
+
+	slot, err := lot.FindCar("KA01MM2323")
+	if err != nil {
+		t.Fatalf("expected to find car, got error: %v", err)
+	}
+	if slot.Number != 1 {
+		t.Errorf("expected to find car at slot 1, got %d", slot.Number)
+	}
+}
+
+func TestFindCar_NotFound(t *testing.T) {
+	lot := NewParkingLot("Lot A", 1)
+	_, err := lot.FindCar("UNKNOWN")
+	if err == nil {
+		t.Error("expected error for unknown car, got nil")
+	}
+}
