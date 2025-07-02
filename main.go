@@ -80,3 +80,15 @@ func (pl *ParkingLot) ParkCarWithNotification(car *Car) (int, error) {
 	}
 	return slot, err
 }
+
+func (pl *ParkingLot) UnparkCarWithNotification(carNumber string) (int, error) {
+	for i := range pl.Slots {
+		if !pl.Slots[i].IsEmpty && pl.Slots[i].Car.Number == carNumber {
+			pl.Slots[i].Car = nil
+			pl.Slots[i].IsEmpty = true
+			pl.NotifyObservers("AVAILABLE")
+			return pl.Slots[i].Number, nil
+		}
+	}
+	return -1, fmt.Errorf("car not found")
+}
