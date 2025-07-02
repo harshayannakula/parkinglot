@@ -92,3 +92,13 @@ func (pl *ParkingLot) UnparkCarWithNotification(carNumber string) (int, error) {
 	}
 	return -1, fmt.Errorf("car not found")
 }
+
+type Attendant struct {
+	Name string
+	Lot  *ParkingLot
+}
+
+func (a *Attendant) ParkCarForDriver(car *Car) (int, error) {
+	fmt.Printf("Attendant %s is parking car %s\n", a.Name, car.Number)
+	return a.Lot.ParkCar(car)
+}

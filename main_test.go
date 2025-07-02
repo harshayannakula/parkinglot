@@ -102,3 +102,17 @@ func TestNotifyObserversOnAvailable(t *testing.T) {
 		t.Error("expected observer to be called with AVAILABLE")
 	}
 }
+func TestAttendantParksCar(t *testing.T) {
+	lot := NewParkingLot("Lot A", 2)
+	attendant := &Attendant{Name: "John", Lot: lot}
+	car := &Car{Number: "KA09VV7777"}
+
+	slot, err := attendant.ParkCarForDriver(car)
+	if err != nil {
+		t.Fatalf("attendant failed to park car: %v", err)
+	}
+
+	if slot != 1 {
+		t.Errorf("expected slot 1, got %d", slot)
+	}
+}
