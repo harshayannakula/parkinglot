@@ -110,3 +110,21 @@ func (pl *ParkingLot) FindCar(carNumber string) (*Slot, error) {
 	}
 	return nil, fmt.Errorf("car %s not found in lot", carNumber)
 }
+func (pl *ParkingLot) UnparkCarAndCharge(carNumber string) (int, int, error) {
+	for i := range pl.Slots {
+		slot := &pl.Slots[i]
+		if !slot.IsEmpty && slot.Car.Number == carNumber {
+			duration := int(time.Since(slot.Car.ParkedAt).Minutes())
+			if duration == 0 {
+				duration = 1 // minimum charge for <1 minute
+			}
+			fee := duration * 2 // ₹2 per minute
+
+			slot.Car = nil
+			slot.IsEmpty = true
+			pl.NotifyObservers("AVAILABLE")
+			return slot.Number, fee, nil
+		}
+	}
+	return -1, 0, fmt.Errorf("car not found")
+}

@@ -3,6 +3,7 @@ package main
 
 import (
 	"testing"
+	"time"
 )
 
 func TestParkCar_Success(t *testing.T) {
@@ -135,5 +136,24 @@ func TestFindCar_NotFound(t *testing.T) {
 	_, err := lot.FindCar("UNKNOWN")
 	if err == nil {
 		t.Error("expected error for unknown car, got nil")
+	}
+}
+func TestUnparkCarAndCharge(t *testing.T) {
+	lot := NewParkingLot("Lot A", 1)
+	car := &Car{Number: "KA01ZZ8888"}
+	_, _ = lot.ParkCar(car)
+
+	// Simulate some time passed
+	car.ParkedAt = car.ParkedAt.Add(-3 * time.Minute)
+
+	slot, fee, err := lot.UnparkCarAndCharge("KA01ZZ8888")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if slot != 1 {
+		t.Errorf("expected to unpark from slot 1, got %d", slot)
+	}
+	if fee != 6 {
+		t.Errorf("expected ₹6 charge (3 mins), got ₹%d", fee)
 	}
 }
