@@ -34,6 +34,10 @@ type Attendant struct {
 	Lot  *ParkingLot
 }
 
+type ParkingManager struct {
+	Lots []*ParkingLot
+}
+
 func NewParkingLot(name string, capacity int) *ParkingLot {
 	slots := make([]Slot, capacity)
 	for i := range slots {
@@ -127,4 +131,32 @@ func (pl *ParkingLot) UnparkCarAndCharge(carNumber string) (int, int, error) {
 		}
 	}
 	return -1, 0, fmt.Errorf("car not found")
+}
+
+func (pm *ParkingManager) ParkEvenly(car *Car) (string, int, error) {
+	var targetLot *ParkingLot
+	maxFree := -1
+
+	for _, lot := range pm.Lots {
+		freeSlots := 0
+		for _, slot := range lot.Slots {
+			if slot.IsEmpty {
+				freeSlots++
+			}
+		}
+		if freeSlots > maxFree {
+			maxFree = freeSlots
+			targetLot = lot
+		}
+	}
+
+	if targetLot == nil {
+		return "", -1, fmt.Errorf("all lots are full")
+	}
+
+	slotNum, err := targetLot.ParkCar(car)
+	if err != nil {
+		return "", -1, err
+	}
+	return targetLot.Name, slotNum, nil
 }

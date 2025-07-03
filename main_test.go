@@ -157,3 +157,19 @@ func TestUnparkCarAndCharge(t *testing.T) {
 		t.Errorf("expected ₹6 charge (3 mins), got ₹%d", fee)
 	}
 }
+
+func TestEvenDistributionBetweenLots(t *testing.T) {
+	lot1 := NewParkingLot("Lot A", 1)
+	lot2 := NewParkingLot("Lot B", 2)
+	manager := &ParkingManager{Lots: []*ParkingLot{lot1, lot2}}
+
+	car := &Car{Number: "KA05EV1234"}
+	lotName, slot, err := manager.ParkEvenly(car)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if lotName != "Lot B" || slot != 1 {
+		t.Errorf("expected car to be parked in Lot B slot 1, got %s slot %d", lotName, slot)
+	}
+}
