@@ -175,3 +175,35 @@ func (a *Attendant) ParkCarWithStrategy(car *Car) (int, error) {
 	// Default strategy for non-handicap
 	return a.ParkCarForDriver(car)
 }
+
+func (pm *ParkingManager) ParkLargeVehicle(car *Car) (string, int, error) {
+	if car.Size != "large" {
+		return "", -1, fmt.Errorf("not a large vehicle")
+	}
+
+	var targetLot *ParkingLot
+	maxFree := -1
+
+	for _, lot := range pm.Lots {
+		free := 0
+		for _, slot := range lot.Slots {
+			if slot.IsEmpty {
+				free++
+			}
+		}
+		if free > maxFree {
+			maxFree = free
+			targetLot = lot
+		}
+	}
+
+	if targetLot == nil {
+		return "", -1, fmt.Errorf("no lot has space for large vehicle")
+	}
+
+	slot, err := targetLot.ParkCar(car)
+	if err != nil {
+		return "", -1, err
+	}
+	return targetLot.Name, slot, nil
+}

@@ -193,3 +193,23 @@ func TestHandicapGetsNearestSlot(t *testing.T) {
 		t.Errorf("expected handicap car to get slot 2 (next nearest), got %d", slot)
 	}
 }
+
+func TestLargeVehicleAssignedToMostFreeLot(t *testing.T) {
+	lot1 := NewParkingLot("Lot A", 1) // 1 slot
+	lot2 := NewParkingLot("Lot B", 3) // 3 slots
+
+	manager := &ParkingManager{Lots: []*ParkingLot{lot1, lot2}}
+
+	car := &Car{Number: "KA10XL9999", Size: "large"}
+	lotName, slot, err := manager.ParkLargeVehicle(car)
+	if err != nil {
+		t.Fatalf("failed to park large vehicle: %v", err)
+	}
+
+	if lotName != "Lot B" {
+		t.Errorf("expected large vehicle to be parked in Lot B, got %s", lotName)
+	}
+	if slot != 1 {
+		t.Errorf("expected slot 1 in Lot B, got %d", slot)
+	}
+}
