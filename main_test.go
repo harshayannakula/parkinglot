@@ -173,3 +173,23 @@ func TestEvenDistributionBetweenLots(t *testing.T) {
 		t.Errorf("expected car to be parked in Lot B slot 1, got %s slot %d", lotName, slot)
 	}
 }
+
+func TestHandicapGetsNearestSlot(t *testing.T) {
+	lot := NewParkingLot("Lot A", 3)
+	// Fill slot 1
+	_ = lot.Slots[0] // slot 1
+	lot.Slots[0].IsEmpty = false
+	lot.Slots[0].Car = &Car{Number: "KA00DUMMY"}
+
+	attendant := &Attendant{Name: "Ram", Lot: lot}
+	handicapCar := &Car{Number: "KA01HC9999", IsHandicap: true}
+
+	slot, err := attendant.ParkCarWithStrategy(handicapCar)
+	if err != nil {
+		t.Fatalf("failed to park handicap car: %v", err)
+	}
+
+	if slot != 2 {
+		t.Errorf("expected handicap car to get slot 2 (next nearest), got %d", slot)
+	}
+}

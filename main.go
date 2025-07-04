@@ -160,3 +160,18 @@ func (pm *ParkingManager) ParkEvenly(car *Car) (string, int, error) {
 	}
 	return targetLot.Name, slotNum, nil
 }
+
+func (a *Attendant) ParkCarWithStrategy(car *Car) (int, error) {
+	if car.IsHandicap {
+		// Handicap: nearest available slot (lowest slot number)
+		for i := range a.Lot.Slots {
+			if a.Lot.Slots[i].IsEmpty {
+				return a.Lot.ParkCar(car) // default behavior already parks in lowest first
+			}
+		}
+		return -1, fmt.Errorf("no available slot for handicap driver")
+	}
+
+	// Default strategy for non-handicap
+	return a.ParkCarForDriver(car)
+}
