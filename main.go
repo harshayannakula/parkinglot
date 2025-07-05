@@ -18,9 +18,10 @@ type Car struct {
 }
 
 type Slot struct {
-	Number  int
-	IsEmpty bool
-	Car     *Car
+	Number        int
+	IsEmpty       bool
+	Car           *Car
+	AttendantName string
 }
 
 type ParkingLot struct {
@@ -36,6 +37,18 @@ type Attendant struct {
 
 type ParkingManager struct {
 	Lots []*ParkingLot
+}
+
+type CarFilter struct {
+	Color      string
+	Make       string
+	Size       string
+	IsHandicap *bool // use pointer to distinguish unset vs false
+}
+
+type CarWithAttendant struct {
+	Car
+	Attendant string
 }
 
 func NewParkingLot(name string, capacity int) *ParkingLot {
@@ -104,8 +117,22 @@ func (pl *ParkingLot) UnparkCarWithNotification(carNumber string) (int, error) {
 
 func (a *Attendant) ParkCarForDriver(car *Car) (int, error) {
 	fmt.Printf("Attendant %s is parking car %s\n", a.Name, car.Number)
-	return a.Lot.ParkCar(car)
+	return a.Lot.ParkCarWithAttendant(car, a.Name)
 }
+
+func (pl *ParkingLot) ParkCarWithAttendant(car *Car, attendantName string) (int, error) {
+	for i := range pl.Slots {
+		if pl.Slots[i].IsEmpty {
+			pl.Slots[i].Car = car
+			pl.Slots[i].IsEmpty = false
+			pl.Slots[i].AttendantName = attendantName
+			car.ParkedAt = time.Now()
+			return pl.Slots[i].Number, nil
+		}
+	}
+	return -1, fmt.Errorf("lot is full")
+}
+
 func (pl *ParkingLot) FindCar(carNumber string) (*Slot, error) {
 	for i := range pl.Slots {
 		if !pl.Slots[i].IsEmpty && pl.Slots[i].Car.Number == carNumber {
@@ -217,5 +244,36 @@ func (pm *ParkingManager) FindCarsByColor(color string) []Car {
 			}
 		}
 	}
+	return result
+}
+
+func (pm *ParkingManager) FindCars(filter CarFilter) []CarWithAttendant {
+	var result []CarWithAttendant
+
+	for _, lot := range pm.Lots {
+		for _, slot := range lot.Slots {
+			if slot.IsEmpty {
+				continue
+			}
+			car := slot.Car
+			if filter.Color != "" && car.Color != filter.Color {
+				continue
+			}
+			if filter.Make != "" && car.Make != filter.Make {
+				continue
+			}
+			if filter.Size != "" && car.Size != filter.Size {
+				continue
+			}
+			if filter.IsHandicap != nil && car.IsHandicap != *filter.IsHandicap {
+				continue
+			}
+			result = append(result, CarWithAttendant{
+				Car:       *car,
+				Attendant: slot.AttendantName,
+			})
+		}
+	}
+
 	return result
 }

@@ -233,3 +233,32 @@ func TestFindWhiteCars(t *testing.T) {
 		t.Errorf("expected 2 white cars, got %d", len(whiteCars))
 	}
 }
+
+func TestGenericCarFinder_BlueToyota(t *testing.T) {
+	lot := NewParkingLot("Lot A", 3)
+	attendant := &Attendant{Name: "Alice", Lot: lot}
+
+	car1 := &Car{Number: "X1", Color: "Blue", Make: "Toyota"}
+	car2 := &Car{Number: "X2", Color: "Blue", Make: "Honda"}
+	car3 := &Car{Number: "X3", Color: "Red", Make: "Toyota"}
+
+	_, _ = attendant.ParkCarForDriver(car1)
+	_, _ = attendant.ParkCarForDriver(car2)
+	_, _ = attendant.ParkCarForDriver(car3)
+
+	manager := &ParkingManager{Lots: []*ParkingLot{lot}}
+
+	filter := CarFilter{
+		Color: "Blue",
+		Make:  "Toyota",
+	}
+
+	found := manager.FindCars(filter)
+
+	if len(found) != 1 {
+		t.Fatalf("expected 1 Blue Toyota, got %d", len(found))
+	}
+	if found[0].Car.Number != "X1" || found[0].Attendant != "Alice" {
+		t.Errorf("unexpected result: %+v", found[0])
+	}
+}
