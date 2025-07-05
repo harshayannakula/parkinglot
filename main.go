@@ -207,3 +207,15 @@ func (pm *ParkingManager) ParkLargeVehicle(car *Car) (string, int, error) {
 	}
 	return targetLot.Name, slot, nil
 }
+
+func (pm *ParkingManager) FindCarsByColor(color string) []Car {
+	var result []Car
+	for _, lot := range pm.Lots {
+		for _, slot := range lot.Slots {
+			if !slot.IsEmpty && slot.Car.Color == color {
+				result = append(result, *slot.Car)
+			}
+		}
+	}
+	return result
+}

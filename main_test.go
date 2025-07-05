@@ -213,3 +213,23 @@ func TestLargeVehicleAssignedToMostFreeLot(t *testing.T) {
 		t.Errorf("expected slot 1 in Lot B, got %d", slot)
 	}
 }
+
+func TestFindWhiteCars(t *testing.T) {
+	lot1 := NewParkingLot("Lot A", 2)
+	lot2 := NewParkingLot("Lot B", 2)
+
+	car1 := &Car{Number: "WHITE1", Color: "White"}
+	car2 := &Car{Number: "BLUE1", Color: "Blue"}
+	car3 := &Car{Number: "WHITE2", Color: "White"}
+
+	_, _ = lot1.ParkCar(car1)
+	_, _ = lot2.ParkCar(car2)
+	_, _ = lot2.ParkCar(car3)
+
+	manager := &ParkingManager{Lots: []*ParkingLot{lot1, lot2}}
+
+	whiteCars := manager.FindCarsByColor("White")
+	if len(whiteCars) != 2 {
+		t.Errorf("expected 2 white cars, got %d", len(whiteCars))
+	}
+}
