@@ -277,3 +277,20 @@ func (pm *ParkingManager) FindCars(filter CarFilter) []CarWithAttendant {
 
 	return result
 }
+
+func (pm *ParkingManager) FindCarsParkedWithin(duration time.Duration) []CarWithAttendant {
+	var result []CarWithAttendant
+	cutoff := time.Now().Add(-duration)
+
+	for _, lot := range pm.Lots {
+		for _, slot := range lot.Slots {
+			if !slot.IsEmpty && slot.Car.ParkedAt.After(cutoff) {
+				result = append(result, CarWithAttendant{
+					Car:       *slot.Car,
+					Attendant: slot.AttendantName,
+				})
+			}
+		}
+	}
+	return result
+}

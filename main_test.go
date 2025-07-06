@@ -287,3 +287,32 @@ func TestFindAllParkedBMWs(t *testing.T) {
 		t.Errorf("unexpected car make in result: %v", results)
 	}
 }
+
+func TestFindCarsParkedInLast30Minutes(t *testing.T) {
+	lot := NewParkingLot("Lot A", 3)
+	attendant := &Attendant{Name: "Rahul", Lot: lot}
+
+	car1 := &Car{Number: "NEW1"}
+	car2 := &Car{Number: "OLD1"}
+	car3 := &Car{Number: "NEW2"}
+
+	// Park all 3 cars
+	_, _ = attendant.ParkCarForDriver(car1)
+	_, _ = attendant.ParkCarForDriver(car2)
+	_, _ = attendant.ParkCarForDriver(car3)
+
+	// Simulate that car2 was parked 40 minutes ago
+	car2.ParkedAt = time.Now().Add(-40 * time.Minute)
+
+	manager := &ParkingManager{Lots: []*ParkingLot{lot}}
+	found := manager.FindCarsParkedWithin(30 * time.Minute)
+
+	if len(found) != 2 {
+		t.Errorf("expected 2 cars parked in last 30 minutes, got %d", len(found))
+	}
+	for _, entry := range found {
+		if entry.Car.Number == "OLD1" {
+			t.Error("car parked over 30 minutes ago should not be in result")
+		}
+	}
+}
