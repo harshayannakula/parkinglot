@@ -316,3 +316,39 @@ func TestFindCarsParkedInLast30Minutes(t *testing.T) {
 		}
 	}
 }
+
+func TestFindSmallHandicapInRowBOrD(t *testing.T) {
+	lot := NewParkingLot("Lot A", 5)
+
+	lot.Slots[0].Row = "A"
+	lot.Slots[1].Row = "B"
+	lot.Slots[2].Row = "C"
+	lot.Slots[3].Row = "D"
+	lot.Slots[4].Row = "E"
+
+	car1 := &Car{Number: "C1", Size: "small", IsHandicap: true}
+	car2 := &Car{Number: "C2", Size: "small", IsHandicap: true}
+	car3 := &Car{Number: "C3", Size: "large", IsHandicap: true}
+	car4 := &Car{Number: "C4", Size: "small", IsHandicap: true}
+	car5 := &Car{Number: "C5", Size: "small", IsHandicap: false}
+
+	lot.Slots[0].Car, lot.Slots[0].IsEmpty, lot.Slots[0].AttendantName = car1, false, "Rita"
+	lot.Slots[1].Car, lot.Slots[1].IsEmpty, lot.Slots[1].AttendantName = car2, false, "Rita"
+	lot.Slots[2].Car, lot.Slots[2].IsEmpty, lot.Slots[2].AttendantName = car3, false, "Rita"
+	lot.Slots[3].Car, lot.Slots[3].IsEmpty, lot.Slots[3].AttendantName = car4, false, "Rita"
+	lot.Slots[4].Car, lot.Slots[4].IsEmpty, lot.Slots[4].AttendantName = car5, false, "Rita"
+
+	manager := &ParkingManager{Lots: []*ParkingLot{lot}}
+	found := manager.FindSmallHandicapInRowBOrD()
+
+	if len(found) != 2 {
+		t.Errorf("expected 2 small handicap cars in B or D, got %d", len(found))
+	}
+
+	for _, c := range found {
+		if c.Row != "B" && c.Row != "D" {
+			t.Errorf("unexpected row in result: %s", c.Row)
+		}
+	}
+
+}

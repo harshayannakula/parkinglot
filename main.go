@@ -19,6 +19,7 @@ type Car struct {
 
 type Slot struct {
 	Number        int
+	Row           string
 	IsEmpty       bool
 	Car           *Car
 	AttendantName string
@@ -49,12 +50,20 @@ type CarFilter struct {
 type CarWithAttendant struct {
 	Car
 	Attendant string
+	Row       string
 }
 
 func NewParkingLot(name string, capacity int) *ParkingLot {
 	slots := make([]Slot, capacity)
+	rowLetters := []string{"A", "B", "C", "D", "E"}
+
 	for i := range slots {
-		slots[i] = Slot{Number: i + 1, IsEmpty: true}
+		row := rowLetters[i%len(rowLetters)]
+		slots[i] = Slot{
+			Number:  i + 1,
+			Row:     row,
+			IsEmpty: true,
+		}
 	}
 	return &ParkingLot{Name: name, Slots: slots}
 }
@@ -288,6 +297,23 @@ func (pm *ParkingManager) FindCarsParkedWithin(duration time.Duration) []CarWith
 				result = append(result, CarWithAttendant{
 					Car:       *slot.Car,
 					Attendant: slot.AttendantName,
+				})
+			}
+		}
+	}
+	return result
+}
+
+func (pm *ParkingManager) FindSmallHandicapInRowBOrD() []CarWithAttendant {
+	var result []CarWithAttendant
+	for _, lot := range pm.Lots {
+		for _, slot := range lot.Slots {
+			if !slot.IsEmpty && slot.Car.Size == "small" && slot.Car.IsHandicap &&
+				(slot.Row == "B" || slot.Row == "D") {
+				result = append(result, CarWithAttendant{
+					Car:       *slot.Car,
+					Attendant: slot.AttendantName,
+					Row:       slot.Row,
 				})
 			}
 		}
