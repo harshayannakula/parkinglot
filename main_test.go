@@ -352,3 +352,29 @@ func TestFindSmallHandicapInRowBOrD(t *testing.T) {
 	}
 
 }
+
+func TestGetAllParkedCarsInLot(t *testing.T) {
+	lot := NewParkingLot("Lot Z", 3)
+
+	car1 := &Car{Number: "XYZ1", Color: "Black"}
+	car2 := &Car{Number: "XYZ2", Color: "White"}
+
+	lot.Slots[0].Car = car1
+	lot.Slots[0].IsEmpty = false
+	lot.Slots[0].AttendantName = "Sam"
+	lot.Slots[0].Row = "A"
+
+	lot.Slots[1].Car = car2
+	lot.Slots[1].IsEmpty = false
+	lot.Slots[1].AttendantName = "Sam"
+	lot.Slots[1].Row = "B"
+
+	parkedCars := lot.GetAllParkedCars()
+
+	if len(parkedCars) != 2 {
+		t.Errorf("expected 2 parked cars, got %d", len(parkedCars))
+	}
+	if parkedCars[0].Car.Number != "XYZ1" || parkedCars[1].Car.Number != "XYZ2" {
+		t.Errorf("unexpected car numbers: %+v", parkedCars)
+	}
+}

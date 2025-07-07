@@ -320,3 +320,17 @@ func (pm *ParkingManager) FindSmallHandicapInRowBOrD() []CarWithAttendant {
 	}
 	return result
 }
+
+func (pl *ParkingLot) GetAllParkedCars() []CarWithAttendant {
+	var result []CarWithAttendant
+	for _, slot := range pl.Slots {
+		if !slot.IsEmpty {
+			result = append(result, CarWithAttendant{
+				Car:       *slot.Car,
+				Attendant: slot.AttendantName,
+				Row:       slot.Row,
+			})
+		}
+	}
+	return result
+}
