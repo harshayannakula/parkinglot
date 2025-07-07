@@ -334,3 +334,120 @@ func (pl *ParkingLot) GetAllParkedCars() []CarWithAttendant {
 	}
 	return result
 }
+
+func main() {
+	manager := &ParkingManager{
+		Lots: []*ParkingLot{
+			NewParkingLot("Lot A", 5),
+			NewParkingLot("Lot B", 5),
+		},
+	}
+
+	attendant := &Attendant{Name: "Admin", Lot: manager.Lots[0]}
+
+	for {
+		fmt.Println("\n--- Parking Lot System ---")
+		fmt.Println("1. Park Car")
+		fmt.Println("2. Unpark Car")
+		fmt.Println("3. Find Car by Number")
+		fmt.Println("4. Find White Cars")
+		fmt.Println("5. Park Evenly Across Lots")
+		fmt.Println("6. Charge for Unpark")
+		fmt.Println("7. Show All Parked Cars (Lot A)")
+		fmt.Println("8. Exit")
+		fmt.Print("Select Option: ")
+
+		var choice int
+		fmt.Scanln(&choice)
+
+		switch choice {
+		case 1:
+			var num, color, make, size string
+			var isHandicap bool
+			fmt.Print("Enter Car Number: ")
+			fmt.Scanln(&num)
+			fmt.Print("Enter Color: ")
+			fmt.Scanln(&color)
+			fmt.Print("Enter Make: ")
+			fmt.Scanln(&make)
+			fmt.Print("Enter Size (small/large): ")
+			fmt.Scanln(&size)
+			fmt.Print("Is Handicap? (true/false): ")
+			fmt.Scanln(&isHandicap)
+
+			car := &Car{Number: num, Color: color, Make: make, Size: size, IsHandicap: isHandicap}
+			slot, err := attendant.ParkCarForDriver(car)
+			if err != nil {
+				fmt.Println("Error:", err)
+			} else {
+				fmt.Printf("Car parked at slot %d\n", slot)
+			}
+
+		case 2:
+			var num string
+			fmt.Print("Enter Car Number to Unpark: ")
+			fmt.Scanln(&num)
+			slot, err := manager.Lots[0].UnparkCar(num)
+			if err != nil {
+				fmt.Println("Error:", err)
+			} else {
+				fmt.Printf("Car unparked from slot %d\n", slot)
+			}
+
+		case 3:
+			var num string
+			fmt.Print("Enter Car Number: ")
+			fmt.Scanln(&num)
+			slot, err := manager.Lots[0].FindCar(num)
+			if err != nil {
+				fmt.Println("Error:", err)
+			} else {
+				fmt.Printf("Car is parked at slot %d (Row %s)\n", slot.Number, slot.Row)
+			}
+
+		case 4:
+			cars := manager.FindCarsByColor("White")
+			fmt.Printf("Found %d white cars:\n", len(cars))
+			for _, car := range cars {
+				fmt.Printf(" - %s (%s)\n", car.Number, car.Make)
+			}
+
+		case 5:
+			var num string
+			fmt.Print("Enter Car Number: ")
+			fmt.Scanln(&num)
+			car := &Car{Number: num}
+			lotName, slot, err := manager.ParkEvenly(car)
+			if err != nil {
+				fmt.Println("Error:", err)
+			} else {
+				fmt.Printf("Car parked in %s at slot %d\n", lotName, slot)
+			}
+
+		case 6:
+			var num string
+			fmt.Print("Enter Car Number: ")
+			fmt.Scanln(&num)
+			slot, fee, err := manager.Lots[0].UnparkCarAndCharge(num)
+			if err != nil {
+				fmt.Println("Error:", err)
+			} else {
+				fmt.Printf("Unparked from slot %d. Fee: ₹%d\n", slot, fee)
+			}
+
+		case 7:
+			cars := manager.Lots[0].GetAllParkedCars()
+			fmt.Printf("Cars in Lot A:\n")
+			for _, c := range cars {
+				fmt.Printf(" - %s (%s) parked by %s at Row %s\n", c.Number, c.Make, c.Attendant, c.Row)
+			}
+
+		case 8:
+			fmt.Println("Exiting...")
+			return
+
+		default:
+			fmt.Println("Invalid option.")
+		}
+	}
+}
